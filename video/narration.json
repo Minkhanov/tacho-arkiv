@@ -1,0 +1,42 @@
+{
+  "voice": "en-US-AndrewNeural",
+  "rate": "+0%",
+  "gapMs": 350,
+  "segments": [
+    {
+      "id": "title",
+      "scene": "stage:title",
+      "text": "An AI agent with your company card. Who keeps its logbook? This is Tacho: a tachograph for AI agents, built on Arkiv."
+    },
+    {
+      "id": "problem",
+      "scene": "stage:problem",
+      "text": "Trucks carry tachographs because hauliers once kept their own logbooks. AI agents are still in that era. The limits an agent had, and the log of what it did, sit in the vendor's database. The vendor can edit it, lose it, or shut down. And the fuel station cannot check anything at all."
+    },
+    {
+      "id": "terminal",
+      "scene": "stage:terminal",
+      "text": "Here is the whole story, live on the Tiramisu testnet. The fleet owner issues a mandate: fuel and tolls only, fifteen thousand roubles per action, forty thousand a day. It is read-only, and it lives fifteen minutes unless the owner keeps renewing it. Every attempt the agent makes, allowed or refused, becomes a record from the agent's wallet, handed in the same atomic batch to an address nobody holds. So nobody can delete it, not even the agent's operator. Two attempts are refused: one over the per-action cap, one that would break the daily cap. The fuel station verifies a record before it pumps, and seals its own receipt. A forger copies every attribute into a fake ninety-thousand-rouble record. Refused: wrong creator. Then the owner revokes. The agent hears the deletion over a WebSocket, halts, and its next attempt is refused on the record."
+    },
+    {
+      "id": "inspector",
+      "scene": "live:agent",
+      "text": "Anyone can audit this from Arkiv alone. The inspector is a static page with no server and no login. The ring counts down the lease. The disc is the day, like a paper tachograph: green allowed, amber refused, red forged, blue heartbeats. Every record is sealed, kept forty-five days, and anyone can extend it during a dispute. Details are encrypted; with the key in the link, only the parties can read them. Each panel shows its exact query, and a curl that works without us."
+    },
+    {
+      "id": "verify",
+      "scene": "live:verify",
+      "text": "The fuel station's check trusts nothing the agent says. Authorship comes from the creator field. The mandate is read as it was at the record's block. And the daily cap is recomputed from the agent's own records at that block."
+    },
+    {
+      "id": "why",
+      "scene": "stage:why",
+      "text": "Take Arkiv away and this falls apart. Expiry is enforced by the database, not a cron job. The creator is set by the protocol. Ownership makes the evidence undeletable. And a stranger can query all of it, at any block."
+    },
+    {
+      "id": "crops",
+      "scene": "stage:crops",
+      "text": "Security, censorship resistance, privacy, and an open data contract anyone can build on. Tacho: leased authority, sealed records, open audits."
+    }
+  ]
+}

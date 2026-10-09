@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Tacho video stage</title>
+<style>
+  :root { --bg:#0a0f14; --panel:#10171e; --line:#22303c; --text:#e6edf3; --muted:#8aa1b4; --ok:#3ddc97; --warn:#f5b942; --bad:#ff5c6c; --info:#5cc8ff;
+    --mono: "Cascadia Mono", "JetBrains Mono", Consolas, monospace; --sans: "Segoe UI", Inter, system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(61,220,151,.09), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(92,200,255,.08), transparent 60%), var(--bg);
+    color: var(--text); font-family: var(--sans); }
+  .scene { position: absolute; inset: 0; padding: 110px 140px; display: none; }
+  .scene.on { display: block; }
+  .eyebrow { color: var(--ok); letter-spacing: .14em; text-transform: uppercase; font-size: 26px; margin: 0 0 18px; }
+  h1 { font-size: 104px; line-height: 1.02; margin: 0 0 28px; letter-spacing: -.02em; }
+  h2 { font-size: 64px; margin: 0 0 40px; letter-spacing: -.01em; }
+  .accent { color: var(--ok); }
+  .lede { font-size: 38px; color: #c5d3df; max-width: 1400px; line-height: 1.35; }
+  .fade { opacity: 0; transform: translateY(14px); animation: in .7s ease forwards; }
+  @keyframes in { to { opacity: 1; transform: none; } }
+  /* title */
+  .dial { position: absolute; right: 160px; top: 300px; width: 420px; height: 420px; }
+  .dial .hand { transform-origin: 210px 210px; animation: spin 9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: 30px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 34px 36px; font-size: 32px; line-height: 1.35; color: #c5d3df; }
+  .card b { display: block; color: var(--text); font-size: 36px; margin-bottom: 14px; }
+  .card.bad { border-color: rgba(255,92,108,.5); }
+  /* terminal */
+  .term { background: #070b0f; border: 1px solid var(--line); border-radius: 18px; height: 820px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .term-bar { height: 52px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; padding: 0 20px; color: var(--muted); font: 22px var(--mono); }
+  .term-bar i { width: 14px; height: 14px; border-radius: 50%; background: #2a3946; display: inline-block; }
+  .term-body { padding: 22px 28px; font: 23px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .term-body .l { opacity: 0; } .term-body .l.show { opacity: 1; }
+  .c-ok { color: var(--ok); } .c-bad { color: var(--bad); } .c-warn { color: var(--warn); } .c-dim { color: #6b8396; } .c-info { color: var(--info); } .c-mag { color: #d58cff; } .c-b { font-weight: 700; }
+  /* why */
+  table { border-collapse: collapse; width: 100%; font-size: 30px; }
+  td, th { padding: 18px 20px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 24px; text-transform: uppercase; letter-spacing: .08em; }
+  td.k { color: var(--ok); width: 30%; }
+  td.no { color: #c5d3df; }
+  /* crops */
+  .pillars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+  .pillar { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 30px 34px; font-size: 30px; color: #c5d3df; line-height: 1.35; }
+  .pillar b { color: var(--text); display: block; font-size: 38px; margin-bottom: 10px; }
+  .foot { position: absolute; left: 140px; right: 140px; bottom: 70px; display: flex; justify-content: space-between; font: 28px var(--mono); color: var(--muted); }
+</style>
+</head>
+<body>
+  <section class="scene" id="title">
+    <p class="eyebrow fade">Arkiv · Global Tour Stop · CROPS</p>
+    <h1 class="fade" style="animation-delay:.2s">A tachograph<br>for <span class="accent">AI agents</span>.</h1>
+    <p class="lede fade" style="animation-delay:.6s">Leased authority. Sealed records.<br>Audits anyone can run, from Arkiv alone.</p>
+    <svg class="dial fade" style="animation-delay:.4s" viewBox="0 0 420 420">
+      <circle cx="210" cy="210" r="190" fill="#10171e" stroke="#22303c" stroke-width="4"/>
+      <circle cx="210" cy="210" r="150" fill="none" stroke="#3ddc97" stroke-width="10" stroke-dasharray="560 400" transform="rotate(-90 210 210)"/>
+      <g stroke="#8aa1b4" stroke-width="4">
+        <line x1="210" y1="30" x2="210" y2="60"/><line x1="390" y1="210" x2="360" y2="210"/><line x1="210" y1="390" x2="210" y2="360"/><line x1="30" y1="210" x2="60" y2="210"/>
+      </g>
+      <line class="hand" x1="210" y1="210" x2="210" y2="80" stroke="#f5b942" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="210" cy="210" r="14" fill="#e6edf3"/>
+    </svg>
+    <div class="foot"><span>tacho</span><span>Tiramisu testnet · chain 7738577</span></div>
+  </section>
+
+  <section class="scene" id="problem">
+    <p class="eyebrow">The problem</p>
+    <h2>AI agents are still in the <span class="accent">logbook era</span>.</h2>
+    <div class="cards">
+      <div class="card fade d1"><b>What was it allowed to do?</b>The limits live in the agent vendor's dashboard. Anyone with admin access can change them.</div>
+      <div class="card fade d2"><b>What did it actually do?</b>The log is a row in the vendor's database: editable, losable, gone when the vendor is.</div>
+      <div class="card fade d3 bad"><b>Is this request real?</b>The fuel station sees an API call. It cannot check anything without calling the vendor.</div>
+    </div>
+  </section>
+
+  <section class="scene" id="terminal">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i>&nbsp; npm run demo &nbsp;·&nbsp; live on Arkiv Tiramisu</div>
+      <div class="term-body" id="tb"></div>
+    </div>
+  </section>
+
+  <section class="scene" id="why">
+    <p class="eyebrow">Why Arkiv</p>
+    <h2>Take Arkiv away and Tacho is just another vendor log.</h2>
+    <table>
+      <tr><th>Tacho needs</th><th>Arkiv gives</th><th>A database you run gives</th></tr>
+      <tr class="fade d1"><td class="k">Authority that expires unless a human renews it</td><td>Entity Expiration + extendEntity: the mandate leaves every query</td><td class="no">A cron job the operator can switch off</td></tr>
+      <tr class="fade d2"><td class="k">Evidence nobody can delete</td><td>Owner = an address nobody holds, set in the creating batch</td><td class="no">The operator owns the table</td></tr>
+      <tr class="fade d3"><td class="k">Authorship a stranger can check</td><td>$creator, set by the protocol</td><td class="no">A column anyone with write access fills</td></tr>
+      <tr class="fade d4"><td class="k">Point-in-time truth</td><td>atBlock on the same query</td><td class="no">Only if history was kept honestly</td></tr>
+    </table>
+  </section>
+
+  <section class="scene" id="crops">
+    <p class="eyebrow">Four CROPS pillars, one design</p>
+    <div class="pillars">
+      <div class="pillar fade d1"><b>Security</b>Trust only $creator. A forged record with every attribute copied is rejected.</div>
+      <div class="pillar fade d2"><b>Censorship resistance</b>Sealed records, readable with curl. There is no Tacho backend to switch off.</div>
+      <div class="pillar fade d3"><b>Privacy</b>Eight short attributes and AES-GCM ciphertext. The key never touches Arkiv.</div>
+      <div class="pillar fade d4"><b>Open source</b>tacho/v1: a documented data contract any agent framework can write and any auditor can read. MIT.</div>
+    </div>
+    <div class="foot"><span>github.com/Minkhanov/tacho-arkiv</span><span>minkhanov.github.io/tacho-arkiv</span></div>
+  </section>
+
+<script>
+  // Driven by the recorder: window.STAGE = { scene, durationMs, transcript? }
+  const S = window.STAGE || { scene: (location.hash || "#title").slice(1), durationMs: 10000 }
+  const el = document.getElementById(S.scene)
+  el.classList.add("on")
+  // spread the .dN reveals over the first 60 % of the scene
+  const steps = el.querySelectorAll("[class*=' d'], [class^='d']")
+  const n = Math.max(1, ...[...el.querySelectorAll(".fade")].map((x) => Number((x.className.match(/\bd(\d)\b/) || [0, 0])[1])))
+  for (const x of el.querySelectorAll(".fade")) {
+    const d = Number((x.className.match(/\bd(\d)\b/) || [0, 0])[1])
+    if (d) x.style.animationDelay = ((d / (n + 1)) * S.durationMs * 0.6) / 1000 + "s"
+  }
+  if (S.scene === "terminal") {
+    const tb = document.getElementById("tb")
+    const raw = (S.transcript || []).filter((l) => !/^\s*>\s|^npm|^\s*$/.test(l.text) || l.text === "")
+    // Keep the real order and rhythm, but cap any pause (e.g. the recording pause) at 2.5 s.
+    let acc = 0
+    const lines = raw.map((l, i) => {
+      if (i > 0) acc += Math.min(2.5, Math.max(0, l.t - raw[i - 1].t))
+      return { t: acc, text: l.text }
+    })
+    const t0 = 0
+    const span = Math.max(1, lines.length ? lines[lines.length - 1].t : 1)
+    const budget = S.durationMs * 0.92
+    const color = (s) => {
+      const esc = s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      return esc
+        .replace(/\b(ALLOWED|PASS|honoured|✔)/g, '<span class="c-ok c-b">$1</span>')
+        .replace(/\b(REFUSED|FAIL|FORGED|revoked|revoke|halting|refused to honour|✘)/g, '<span class="c-bad c-b">$1</span>')
+        .replace(/(https:\/\/\S+)/g, '<span class="c-dim">$1</span>')
+        .replace(/^(\d\d:\d\d:\d\d) (principal|agent|counterparty|forger|tacho)/, (_m, t, r) =>
+          `<span class="c-dim">${t}</span> <span class="${{ principal: "c-info", agent: "c-mag", counterparty: "c-ok", forger: "c-bad", tacho: "c-dim" }[r]}">${r}</span>`)
+    }
+    const nodes = lines.map((l) => {
+      const d = document.createElement("div")
+      d.className = "l"
+      d.innerHTML = color(l.text) || "&nbsp;"
+      tb.appendChild(d)
+      return d
+    })
+    // Real relative timing, compressed to the narration; never faster than 120 ms per line.
+    let last = 0
+    lines.forEach((l, i) => {
+      const at = Math.max(last + 120, ((l.t - t0) / span) * budget)
+      last = at
+      setTimeout(() => {
+        nodes[i].classList.add("show")
+        while (tb.scrollHeight > tb.clientHeight && tb.firstChild && tb.firstChild.classList.contains("show")) tb.removeChild(tb.firstChild)
+      }, at)
+    })
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# deps and builds
+node_modules/
+dist/
+coverage/
+.vite/
+
+# local artefacts
+*.log
+.DS_Store
+video/work/

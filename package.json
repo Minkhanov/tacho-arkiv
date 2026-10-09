@@ -1,0 +1,38 @@
+{
+  "name": "tacho",
+  "version": "0.1.0",
+  "description": "A tachograph for AI agents on Arkiv: the mandate is a lease a human keeps alive, every agent action is a sealed record nobody can delete, and anyone can inspect it without our backend.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "tacho": "tsx --env-file=.env src/cli/main.ts",
+    "demo": "tsx --env-file=.env src/cli/main.ts demo"
+  },
+  "dependencies": {
+    "@arkiv-network/sdk": "0.8.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "viem": "2.56.9"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  }
+}
