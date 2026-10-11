@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react"
+import { RpcBudgetError } from "../../../src/core/clients.ts"
 import { TIRAMISU } from "../../../src/core/constants.ts"
 import { curlFor, queryString, type QuerySpec } from "../../../src/core/queries.ts"
 import type { Check } from "../../../src/core/verify.ts"
@@ -129,7 +130,15 @@ export function Spinner({ label = "reading Arkiv…" }: { label?: string }) {
   )
 }
 
+/** The message worth showing: the RPC budget error when it is anywhere in the cause chain, else the first line. */
+function explain(error: Error): string {
+  for (let e: unknown = error, i = 0; e instanceof Error && i < 8; e = (e as { cause?: unknown }).cause, i++) {
+    if (e instanceof RpcBudgetError) return `${e.message} In this app, add ?apikey=<your key> to the link (after the #/… path; the key stays in the fragment and is never sent to a server).`
+  }
+  return error.message.split("\n")[0] ?? "unknown error"
+}
+
 export function ErrorNote({ error }: { error?: Error }) {
   if (!error) return null
-  return <p className="error">Could not read Arkiv: {error.message.split("\n")[0]}</p>
+  return <p className="error">Could not read Arkiv: {explain(error)}</p>
 }

@@ -3,18 +3,23 @@
  *   npx tsx --env-file=.env scripts/probe-write.ts
  * Spends a little test GLM. Prints one line per probe and writes scripts/out/probe-write.json.
  */
-import { ExpirationTime, jsonToPayload } from "@arkiv-network/sdk"
+import { createWalletClient, ExpirationTime, jsonToPayload } from "@arkiv-network/sdk"
 import { str } from "@arkiv-network/sdk/attr"
+import { tiramisu } from "@arkiv-network/sdk/chains"
 import { eq } from "@arkiv-network/sdk/query"
-import { formatEther, type Hash } from "viem"
+import { formatEther, http, type Hash } from "viem"
+import { privateKeyToAccount } from "viem/accounts"
 import { mkdirSync, writeFileSync } from "node:fs"
 import { SEAL_ADDRESS } from "../src/core/constants.ts"
 import { wsReader } from "../src/core/clients.ts"
-import { addressOf, publicClient, walletOf } from "../src/cli/env.ts"
+import { addressOf, publicClient } from "../src/cli/env.ts"
 
 const pc = publicClient()
-const principal = walletOf("principal")
-const agent = walletOf("agent")
+// W1–W10 and W12 use the chain object exactly as the SDK ships it (no blockTime): that is what friction F8 measures.
+// Tacho's own clients set `blockTime: 2000` (src/core/clients.ts), W11 compares the two.
+const stockWallet = (role: "principal" | "agent") => createWalletClient({ chain: tiramisu, transport: http(), account: privateKeyToAccount(process.env[`TACHO_${role.toUpperCase()}_KEY`] as `0x${string}`) })
+const principal = stockWallet("principal")
+const agent = stockWallet("agent")
 const results: Array<Record<string, unknown>> = []
 const PROJECT = "tacho-probe/v1"
 
@@ -28,9 +33,45 @@ const errText = (e: unknown) => {
 }
 async function fee(hash: Hash) {
   const r = await pc.getTransactionReceipt({ hash })
-  return { gasUsed: r.gasUsed, feeGLM: formatEther(r.gasUsed * r.effectiveGasPrice), block: r.blockNumber }
+  return { txHash: hash, gasUsed: r.gasUsed, feeGLM: formatEther(r.gasUsed * r.effectiveGasPrice), block: r.blockNumber }
 }
 const base = (type: string) => ({ project: str(PROJECT), type: str(type) })
+
+/** Walk the `cause` chain for the revert reason the node returned (a decoded Solidity error name), if any. */
+function revertName(err: unknown): string | null {
+  for (let c = err as { cause?: unknown; data?: { abiItem?: { name?: string } } } | undefined, i = 0; c && i < 8; c = c.cause as typeof c, i++) {
+    if (c.data?.abiItem?.name) return c.data.abiItem.name
+  }
+  return null
+}
+
+/**
+ * Run a write that must be rejected. Reports the error text, whether the SDK error carries a `txHash`
+ * (the docs: "set when the transaction reached the chain"), and whether the wallet's nonce or balance moved,
+ * i.e. whether a rejected write is free (caught by simulation) or costs gas.
+ */
+async function rejected(id: string, who: "principal" | "agent", run: () => Promise<unknown>) {
+  const address = addressOf(who)
+  const nonce0 = await pc.getTransactionCount({ address })
+  const bal0 = await pc.getBalance({ address })
+  try {
+    await run()
+    log(id, false, { unexpected: "accepted" })
+  } catch (err) {
+    const nonce1 = await pc.getTransactionCount({ address })
+    const bal1 = await pc.getBalance({ address })
+    log(`${id} (expected to fail)`, true, {
+      error: errText(err),
+      errorName: (err as Error).name,
+      ownProps: Object.getOwnPropertyNames(err).filter((k) => k !== "stack"),
+      reasonOnError: (err as { reason?: unknown }).reason ?? null,
+      revertNameInCauseChain: revertName(err),
+      txHash: (err as { txHash?: string }).txHash ?? null,
+      nonceDelta: nonce1 - nonce0,
+      balanceDeltaWei: (bal0 - bal1).toString(),
+    })
+  }
+}
 
 // W1: a plain GLM transfer between two wallets
 try {
@@ -88,12 +129,7 @@ try {
   })
 
   // W5: the creator tries to delete the sealed entity
-  try {
-    await agent.deleteEntity({ entityKey: pred.key })
-    log("W5 creator deletes sealed entity", false, { unexpected: "delete succeeded" })
-  } catch (err) {
-    log("W5 creator deletes sealed entity (expected to fail)", true, { error: errText(err) })
-  }
+  await rejected("W5 creator deletes sealed entity", "agent", () => agent.deleteEntity({ entityKey: pred.key }))
 
   // W6: a stranger extends it (permissionlessExtension)
   try {
@@ -105,30 +141,18 @@ try {
   }
 
   // W7: extending to an earlier expiry
-  try {
-    await principal.extendEntity({ entityKey: pred.key, expires: ExpirationTime.fromMinutes(5) })
-    log("W7 shorter extension", false, { unexpected: "accepted" })
-  } catch (err) {
-    log("W7 shorter extension (expected to fail)", true, { error: errText(err) })
-  }
+  await rejected("W7 shorter extension", "principal", () => principal.extendEntity({ entityKey: pred.key, expires: ExpirationTime.fromMinutes(5) }))
 } catch (err) {
   log("W4 create+seal batch", false, { error: errText(err) })
 }
 
 // W8: non-owner extension without the flag; patch on readonly
 const own = await principal.createEntity({ payload: jsonToPayload({ probe: 8 }), contentType: "application/json", attributes: base("w8"), expires: ExpirationTime.fromMinutes(10), flags: { readonly: true, permissionlessExtension: false } })
-try {
-  await agent.extendEntity({ entityKey: own.entityKey, expires: ExpirationTime.fromHours(1) })
-  log("W8a non-owner extension without the flag", false, { unexpected: "accepted" })
-} catch (err) {
-  log("W8a non-owner extension without the flag (expected to fail)", true, { error: errText(err) })
-}
-try {
-  await principal.patchEntity({ entityKey: own.entityKey, set: { type: str("w8b") } })
-  log("W8b patch a readonly entity", false, { unexpected: "accepted" })
-} catch (err) {
-  log("W8b patch a readonly entity (expected to fail)", true, { error: errText(err) })
-}
+await rejected("W8a non-owner extension without the flag", "agent", () => agent.extendEntity({ entityKey: own.entityKey, expires: ExpirationTime.fromHours(1) }))
+await rejected("W8b patch a readonly entity", "principal", () => principal.patchEntity({ entityKey: own.entityKey, set: { type: str("w8b") } }))
+
+// W12: the zero address cannot be the new owner (documented as TransferToZeroAddress); 0x…dEaD can (see W4)
+await rejected("W12 transfer to the zero address", "principal", () => principal.changeOwnership({ entityKey: own.entityKey, newOwner: "0x0000000000000000000000000000000000000000" }))
 
 // W9: WebSocket latency of EntityDeleted
 const ws = wsReader()
@@ -148,6 +172,31 @@ try {
   log("W10 fromSeconds(901)", false, { unexpected: "accepted" })
 } catch (err) {
   log("W10 fromSeconds(901) (expected to fail client-side)", true, { error: errText(err) })
+}
+
+// W11: how long a write takes to resolve with the chain definition the SDK ships, versus the same chain
+// with `blockTime: 2000` (viem derives the receipt polling interval and cache time from it).
+{
+  const key = process.env.TACHO_PRINCIPAL_KEY as `0x${string}`
+  const mk = (chain: typeof tiramisu) => createWalletClient({ chain, transport: http(), account: privateKeyToAccount(key) })
+  const variants = { stock: mk(tiramisu), blockTime2000: mk({ ...tiramisu, blockTime: 2000 } as typeof tiramisu) }
+  const ms: Record<string, number[]> = { stock: [], blockTime2000: [] }
+  for (let i = 0; i < 4; i++) {
+    for (const name of ["stock", "blockTime2000"] as const) {
+      const t = performance.now()
+      await variants[name].createEntity({ payload: jsonToPayload({ probe: 11, i }), contentType: "application/json", attributes: base("w11"), expires: ExpirationTime.fromMinutes(10) })
+      ms[name]!.push(Math.round(performance.now() - t))
+    }
+  }
+  const median = (a: number[]) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)]!
+  log("W11 createEntity latency: stock chain vs blockTime 2000", true, {
+    stockMs: ms.stock,
+    blockTime2000Ms: ms.blockTime2000,
+    stockMedian: median(ms.stock!),
+    blockTime2000Median: median(ms.blockTime2000!),
+    stockPollingMs: variants.stock.pollingInterval,
+    blockTime2000PollingMs: variants.blockTime2000.pollingInterval,
+  })
 }
 
 mkdirSync("scripts/out", { recursive: true })

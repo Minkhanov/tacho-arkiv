@@ -16,7 +16,7 @@
     {
       "id": "terminal",
       "scene": "stage:terminal",
-      "text": "Here is the whole story, live on the Tiramisu testnet. The fleet owner issues a mandate: fuel and tolls only, fifteen thousand roubles per action, forty thousand a day. It is read-only, and it lives fifteen minutes unless the owner keeps renewing it. Every attempt the agent makes, allowed or refused, becomes a record from the agent's wallet, handed in the same atomic batch to an address nobody holds. So nobody can delete it, not even the agent's operator. Two attempts are refused: one over the per-action cap, one that would break the daily cap. The fuel station verifies a record before it pumps, and seals its own receipt. A forger copies every attribute into a fake ninety-thousand-rouble record. Refused: wrong creator. Then the owner revokes. The agent hears the deletion over a WebSocket, halts, and its next attempt is refused on the record."
+      "text": "Here is the whole story, live on the Tiramisu testnet. The fleet owner issues a mandate: fuel and tolls only, fifteen thousand roubles per action, forty thousand a day. It is read-only, and it lives fifteen minutes unless the owner keeps renewing it. Every attempt the agent makes, allowed or refused, becomes a record from the agent's wallet, handed in the same atomic batch to an address nobody holds. So nobody can delete it, not even the agent's operator. Three attempts are refused: one over the per-action cap, one for a kind the mandate never granted, one that would break the daily cap. The fuel station verifies a record before it pumps, and seals its own receipt. A forger copies every attribute into a fake ninety-thousand-rouble record. Refused: wrong creator. Then the owner revokes. The agent hears the deletion over a WebSocket, halts, and its next attempt is refused on the record."
     },
     {
       "id": "inspector",
@@ -26,7 +26,8 @@
     {
       "id": "verify",
       "scene": "live:verify",
-      "text": "The fuel station's check trusts nothing the agent says. Authorship comes from the creator field. The mandate is read as it was at the record's block. And the daily cap is recomputed from the agent's own records at that block."
+      "split": 3,
+      "text": "The fuel station's check trusts nothing the agent says. It reads the creator field, the mandate as it was at the record's block, and recomputes the daily cap from the agent's own records. A genuine record passes. The forged one fails on authorship, whatever attributes it copies."
     },
     {
       "id": "why",

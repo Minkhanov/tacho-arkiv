@@ -1,0 +1,95 @@
+{
+  "runs": [
+    {
+      "at": "2026-10-11T07:57:30.465Z",
+      "results": [
+        {
+          "id": "B1 eth_blockNumber and arkiv_getEntityCount",
+          "ethBlockNumber": {
+            "status": 200,
+            "cost": null,
+            "rateLimit": "limit=600, remaining=599, reset=60"
+          },
+          "getEntityCount": {
+            "status": 200,
+            "cost": null,
+            "rateLimit": "limit=600, remaining=598, reset=60"
+          }
+        },
+        {
+          "id": "B2 cost of one arkiv_query",
+          "skipped": "budget exhausted",
+          "status": 429,
+          "rateLimit": "limit=10000, remaining=0, reset=2532",
+          "retryAfter": "2532",
+          "body": "{\"error\":\"ANON_COST_LIMITED\",\"message\":\"unauthenticated query budget exhausted; get an API key at https://hub.arkiv.network for a monthly quota\"}\n"
+        },
+        {
+          "id": "B3 viem default vs guarded transport on HTTP 429",
+          "retryAfterSeconds": "2532",
+          "stockClient": {
+            "ms": 20000,
+            "outcome": "no answer after 20000 ms"
+          },
+          "guardedClient": {
+            "ms": 845,
+            "outcome": "threw HttpRequestError: HTTP request failed."
+          }
+        }
+      ]
+    },
+    {
+      "at": "2026-10-11T08:39:53.876Z",
+      "results": [
+        {
+          "id": "B1 eth_blockNumber and arkiv_getEntityCount",
+          "ethBlockNumber": {
+            "status": 200,
+            "cost": null,
+            "rateLimit": "limit=600, remaining=598, reset=49"
+          },
+          "getEntityCount": {
+            "status": 200,
+            "cost": null,
+            "rateLimit": "limit=600, remaining=596, reset=49"
+          }
+        },
+        {
+          "id": "B2 cost of one arkiv_query",
+          "rows": [
+            {
+              "label": "select key, limit 1",
+              "status": 200,
+              "cost": "100",
+              "rateLimit": "limit=600, remaining=595, reset=49"
+            },
+            {
+              "label": "select key, limit 1, by $key",
+              "status": 200,
+              "cost": "100",
+              "rateLimit": "limit=600, remaining=597, reset=49"
+            },
+            {
+              "label": "select everything, limit 10",
+              "status": 200,
+              "cost": "100",
+              "rateLimit": "limit=600, remaining=594, reset=49"
+            },
+            {
+              "label": "select everything, limit 100",
+              "status": 200,
+              "cost": "100",
+              "rateLimit": "limit=600, remaining=592, reset=49"
+            },
+            {
+              "label": "select key, limit 100",
+              "status": 200,
+              "cost": "100",
+              "rateLimit": "limit=600, remaining=590, reset=49"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

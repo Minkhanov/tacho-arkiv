@@ -23,6 +23,9 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npx vite build
+        env:
+          # optional: an Arkiv Hub access key locked to https://minkhanov.github.io (repository secret ARKIV_KEY)
+          VITE_ARKIV_KEY: ${{ secrets.ARKIV_KEY }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist

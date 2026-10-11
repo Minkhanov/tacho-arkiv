@@ -24,8 +24,13 @@ export function useRoute(): Route {
 }
 
 export function go(path: string) {
-  const k = parseHash().params.get("k")
-  window.location.hash = "#/" + path.replace(/^\//, "") + (k && !path.includes("?") ? `?k=${k}` : "")
+  const keep = new URLSearchParams()
+  for (const name of ["k", "apikey"]) {
+    const v = parseHash().params.get(name)
+    if (v) keep.set(name, v)
+  }
+  const q = keep.toString()
+  window.location.hash = "#/" + path.replace(/^\//, "") + (q && !path.includes("?") ? `?${q}` : "")
 }
 
 export interface AsyncState<T> {

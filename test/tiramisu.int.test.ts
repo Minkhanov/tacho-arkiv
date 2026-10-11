@@ -3,10 +3,11 @@
  *   npm run test:integration          (needs funded keys in .env; loads it with --env-file)
  * Skips itself when the keys are missing or unfunded, so CI without secrets stays green.
  */
-import { describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vitest"
 import { readFileSync, existsSync } from "node:fs"
 import { REASON, SEAL_ADDRESS, VERDICT } from "../src/core/constants.ts"
 import { parseRecord, recordBatch, type Hex } from "../src/core/entities.ts"
+import { meter } from "../src/core/clients.ts"
 import { generateDataKey } from "../src/core/crypto.ts"
 import { attempt, honour, issueMandate, revokeMandate, waitVisible, type AgentConfig } from "../src/core/ops.ts"
 import { demoPolicy } from "../src/core/policy.ts"
@@ -39,6 +40,8 @@ describe.skipIf(!ready)("Tiramisu end-to-end", () => {
   const rd = env.reader()
   let cfg: AgentConfig
   let allowedKey: Hex
+
+  afterAll(() => console.log(`public RPC query budget used by this run: ${meter.units} units in ${meter.queries} queries`))
 
   it("issues a mandate, and the agent allows and refuses within it", async () => {
     const { mandateKey } = await issueMandate(env.writerOf("principal"), env.addressOf("agent"), demoPolicy({ leaseSeconds: 300, purpose: "integration test (synthetic)" }))

@@ -1,0 +1,308 @@
+{
+  "network": "tiramisu",
+  "wallets": {
+    "principal": "0x4B25c7E2e178D275Ff3285f2832Bb29D13Bd0591",
+    "agent": "0xF743C97D950ac24164Ef0B045AD90baC59BA6A8f",
+    "counterparty": "0x00cb37E03ec19cf0539cb50478B3CFf4e386ED59",
+    "forger": "0x9288957a5294c7210796aBb6F8384a09Be35622E"
+  },
+  "events": [
+    {
+      "at": "2026-10-11T07:47:29.012Z",
+      "role": "principal",
+      "action": "issue-mandate",
+      "entityKey": "0x43f0c7dc43bdaab703a6af678fefc9d83148c4174bf96dd8f504d3c4f9dd54bc",
+      "txHash": "0xc01f52f70618f099e9c6493c5643da599704f8f975a5ec8c9d25b031bfe1d69c"
+    },
+    {
+      "at": "2026-10-11T07:47:35.876Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0xb1aed6899f50f0de4746b67d69b6acd69f7dd95d424b1bf33ba3594f67ba4a5b",
+      "txHash": "0x5b359bb011544ee96a2b86150698484b81483db208c256b1bfba8cd7a0fda696",
+      "note": "fuel 12 400.00 RUB"
+    },
+    {
+      "at": "2026-10-11T07:47:41.178Z",
+      "role": "agent",
+      "action": "record:refused:over_action_cap",
+      "entityKey": "0xdc5d8b7533ea0f42529aa32a4839a8db5855c34322b4b694990a655023328af5",
+      "txHash": "0xdbab900296d682f698846f44da4fbb11d902cabeaaff94f734ffb4cdfc08c70e",
+      "note": "fuel 18 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T07:47:46.491Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0x8a3f0bb81c3b960d94e250673eb29d95ad4ec6f6a41e5d1ed0510958eedc4c56",
+      "txHash": "0x17f9c9b72a2af6ea005e38726ade51cb77a3dda6079849fd3bef3ac2eb54f0ba",
+      "note": "toll 3 200.00 RUB"
+    },
+    {
+      "at": "2026-10-11T07:47:51.793Z",
+      "role": "agent",
+      "action": "record:refused:kind_not_allowed",
+      "entityKey": "0x0fe052e923899d8d6810384104aca7cd0b6ec621fdfbdf5d5b93f8b97dd73f5d",
+      "txHash": "0x06cbfba2fb1baecc38fd7c853895f1254e69a02fe56090df165ff76af4a34fdf",
+      "note": "repair 25 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T07:47:57.113Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0x018b321a85a7bd667af928b91a7e1dd7cfac3856e443a5401eb6d389d1053344",
+      "txHash": "0xaebe42f2e6a6814ecffd7984731fe185ed629574a149a99dffc65d5e5a060b52",
+      "note": "fuel 14 900.00 RUB"
+    },
+    {
+      "at": "2026-10-11T07:48:02.447Z",
+      "role": "agent",
+      "action": "record:refused:over_day_cap",
+      "entityKey": "0xf7a333c3ee5a9b6aed15887ee9ec4623671968e5ae3d7974b3feb26587550d63",
+      "txHash": "0x3b34bfbdc8407b2547089918d2070aa52be6662b57e370a24f36dad83996735d",
+      "note": "fuel 11 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T07:48:08.041Z",
+      "role": "counterparty",
+      "action": "ack",
+      "entityKey": "0x52e12b3fbf7d3899138a4a546949e46f2f26f191cd480aaedafc7274987ff99d",
+      "txHash": "0x8ba29a6a422dccf5dfef2dae67e1b5a19c9edc61f731f69d32156d7342a42fd6",
+      "note": "for record 0xb1aed6899f50f0de4746b67d69b6acd69f7dd95d424b1bf33ba3594f67ba4a5b"
+    },
+    {
+      "at": "2026-10-11T07:48:13.061Z",
+      "role": "forger",
+      "action": "forged-record",
+      "entityKey": "0x04be444d0a743b7a6ce49f217eb105a800bcdf66722ca9f7d824fa02a47d17e2",
+      "txHash": "0x47bf19a0896175715beff24d20aacf4720b918c53124026171739e16378497bd"
+    },
+    {
+      "at": "2026-10-11T07:48:18.464Z",
+      "role": "counterparty",
+      "action": "extend",
+      "entityKey": "0xb1aed6899f50f0de4746b67d69b6acd69f7dd95d424b1bf33ba3594f67ba4a5b",
+      "txHash": "0x93348aefd0419ff81c6be353460652eeda20df3d11fd6bc3eeca496413e61208"
+    },
+    {
+      "at": "2026-10-11T07:48:23.393Z",
+      "role": "principal",
+      "action": "heartbeat",
+      "entityKey": "0x43f0c7dc43bdaab703a6af678fefc9d83148c4174bf96dd8f504d3c4f9dd54bc",
+      "txHash": "0xe4e4f22f3d02bf95189c28c4465689d3eb75eee6ab5e35b84dcc625aad79b733"
+    },
+    {
+      "at": "2026-10-11T07:50:56.000Z",
+      "role": "principal",
+      "action": "revoke",
+      "entityKey": "0x43f0c7dc43bdaab703a6af678fefc9d83148c4174bf96dd8f504d3c4f9dd54bc",
+      "txHash": "0xfa76df3a6db79054079d5eaf2083657242b58009f30d87203f8aac4c1fc1b764",
+      "note": "recovered from the chain log: the demo process was stopped right after sending it, so the CLI never wrote this line"
+    },
+    {
+      "at": "2026-10-11T08:40:02.448Z",
+      "role": "principal",
+      "action": "issue-mandate",
+      "entityKey": "0x406e0040264ed48f57353ae2d6ab6a5e6915cba0eb309310dd713e60526085e9",
+      "txHash": "0x1099d659b816367c768ea87814470d467e039ecbdb25d6049bae46ecaef44dd1"
+    },
+    {
+      "at": "2026-10-11T08:40:06.343Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0x7a5f128b6d36a01660127650d95f170b9d029c1345cb7259b6c8258dce1498e2",
+      "txHash": "0x2c847a30f526bbf34d7a9583c86fa8696593612159014937d13ed2c0654f3b69",
+      "note": "fuel 12 400.00 RUB"
+    },
+    {
+      "at": "2026-10-11T08:40:08.698Z",
+      "role": "agent",
+      "action": "record:refused:over_action_cap",
+      "entityKey": "0x9bd2932c797735b4008e6d4da10f66e84f56db7724e38d7731e756df91fb6a67",
+      "txHash": "0x695f69245e431cd032b9d1f4168a61c9dcf6dc2579388f134ec15dafc625f234",
+      "note": "fuel 18 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T08:40:13.238Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0x8cbf9b9728ebdd3955fa2c3b1a690073a8a66977f5dbe7a39286fc205852a697",
+      "txHash": "0xb2e4fea5a75d8061f173ff0edd4f4fd4758189667920714e765ff70201e6cd7e",
+      "note": "toll 3 200.00 RUB"
+    },
+    {
+      "at": "2026-10-11T08:40:16.647Z",
+      "role": "agent",
+      "action": "record:refused:kind_not_allowed",
+      "entityKey": "0xebc0872b33b34643e30e6416f990b3c7055d5203b8e57615a490678cd30f41a7",
+      "txHash": "0x7504d0c30940cc9e8f7a25cfb3a3edbc994165e125757e6afe28bc2e7477545e",
+      "note": "repair 25 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T08:40:21.178Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0xa34bcdfe247d1aa9ad51a940abde2c8173237e8e8ff4f9ba78c963676057fb6f",
+      "txHash": "0x7ac00e452cfe5300a3d0512eeb0e6a878fa634861432d773f3196ed02ed6c06c",
+      "note": "fuel 14 900.00 RUB"
+    },
+    {
+      "at": "2026-10-11T08:40:24.601Z",
+      "role": "agent",
+      "action": "record:refused:over_day_cap",
+      "entityKey": "0xe4242a939edab29ae635d72ea64e3cefc58a700064533b865d4b7d9235ce56a7",
+      "txHash": "0x76d886d9994ffafe93d6a4f4d8757621201bd4f587a795e89dc5b7f7d7ae42e6",
+      "note": "fuel 11 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T08:40:28.285Z",
+      "role": "counterparty",
+      "action": "ack",
+      "entityKey": "0xed92e3f394181090fd232fe44c80bae1f23ba9561defcc1ea0e31a002dcb0eab",
+      "txHash": "0xacc51e5221b3def5892c9a093cd49071ddf685fc37b9e2a5ae90f723df8917ae",
+      "note": "for record 0x7a5f128b6d36a01660127650d95f170b9d029c1345cb7259b6c8258dce1498e2"
+    },
+    {
+      "at": "2026-10-11T08:40:30.318Z",
+      "role": "forger",
+      "action": "forged-record",
+      "entityKey": "0xfec3e68db25b08159b86ad23144dd98e8c24946a127ceb7d7f674ac2d9c7068f",
+      "txHash": "0x1dcbe975d6ca7689fbbdbbca2956419df212efc5e0c69518a9d91218cf48a8d8"
+    },
+    {
+      "at": "2026-10-11T08:40:34.992Z",
+      "role": "counterparty",
+      "action": "extend",
+      "entityKey": "0x7a5f128b6d36a01660127650d95f170b9d029c1345cb7259b6c8258dce1498e2",
+      "txHash": "0xf67cb51ce20c08551d598daf67b1b500a2df255f0f22f5d2d8fd72207d26a1e6"
+    },
+    {
+      "at": "2026-10-11T08:40:39.114Z",
+      "role": "principal",
+      "action": "heartbeat",
+      "entityKey": "0x406e0040264ed48f57353ae2d6ab6a5e6915cba0eb309310dd713e60526085e9",
+      "txHash": "0x924deb7c226f9be86b3fb5280eebdc87b348bc846c55f8b0517560c333643770"
+    },
+    {
+      "at": "2026-10-11T08:43:12.304Z",
+      "role": "principal",
+      "action": "revoke",
+      "entityKey": "0x406e0040264ed48f57353ae2d6ab6a5e6915cba0eb309310dd713e60526085e9",
+      "txHash": "0x07753956acf112a53ff9959137efbfebe46814ad63810b7b8ffe3db05707c537"
+    },
+    {
+      "at": "2026-10-11T08:43:14.560Z",
+      "role": "agent",
+      "action": "record:refused:no_live_mandate",
+      "entityKey": "0x7f35263ed5ec949391f6beb5943fb4adbc44fd40a7776d5399145a46acca2c9a",
+      "txHash": "0x956a9c907b409825218dfc2056eb89da284463f5e3ee1cf65247654a99d1a2b8",
+      "note": "fuel 5 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T09:40:05.183Z",
+      "role": "principal",
+      "action": "issue-mandate",
+      "entityKey": "0xb208a235fde1e277b7e33b61a9585030683f6cf7135d27647be7c8cdf92599b7",
+      "txHash": "0x7a5711e8fed3cfefd39eb5060d86794b405f1c180dbe59ddfe0cf57152b4e2bc"
+    },
+    {
+      "at": "2026-10-11T09:40:10.416Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0x6c9cc7feeade5dd1fdd8d81941b1ba67e8bd9107e00e9e8c6ffdd1e526f4163f",
+      "txHash": "0xd55a17fb224c1c3756e44c239b3df06260308ea5924c4ec33031e22b09d880c0",
+      "note": "fuel 12 400.00 RUB"
+    },
+    {
+      "at": "2026-10-11T09:40:15.149Z",
+      "role": "agent",
+      "action": "record:refused:over_action_cap",
+      "entityKey": "0xee13299ace103a21fddc11a0adef3968dd7f40941ac5032bdfeb3f8dc654ed35",
+      "txHash": "0xc021068f648a0818ec46cad913bdab88f03eb587843dcdcf71ce035d80840221",
+      "note": "fuel 18 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T09:40:18.832Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0x3b270505974e89b740e3f199077f0a3de2a8fd5216d2fa520c99e9358f661f9d",
+      "txHash": "0x49057f8e27eb677d4beb9dc67610738790d41b593999dc77956fe15d5ace893c",
+      "note": "toll 3 200.00 RUB"
+    },
+    {
+      "at": "2026-10-11T09:40:22.492Z",
+      "role": "agent",
+      "action": "record:refused:kind_not_allowed",
+      "entityKey": "0x5fe9e9e9f3d179f3403a92917faeeaa9e8bf6e854504b20dc77fa99dfa09b708",
+      "txHash": "0x627bfb438dad70ac6ea85a34beb7b951c4f7847cc2c8928404528f1ee3a6db70",
+      "note": "repair 25 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T09:40:27.267Z",
+      "role": "agent",
+      "action": "record:allowed:ok",
+      "entityKey": "0x0de1c157920f8ba45fd877950323cb9d0355dc97b5261e8570e14e35e03e5d3a",
+      "txHash": "0x132ea3ebdde1025bbcf6d098e40fb83e92052c6e3f7cc5f34671a6525887cd62",
+      "note": "fuel 14 900.00 RUB"
+    },
+    {
+      "at": "2026-10-11T09:40:30.893Z",
+      "role": "agent",
+      "action": "record:refused:over_day_cap",
+      "entityKey": "0xf464524bdbd35a3aa284f1fd91c77b85b72dff3c3f109d027f4df3820ab28cf8",
+      "txHash": "0xb0880422e3d7b030cca4f9f127f53c3d4ee3dac2c8f6fc99cf3c38950a95d893",
+      "note": "fuel 11 000.00 RUB"
+    },
+    {
+      "at": "2026-10-11T09:40:34.847Z",
+      "role": "counterparty",
+      "action": "ack",
+      "entityKey": "0x55c92d22df5d877c5768fd2ceeb4ee12ada9039b86bd85c860f30d220533fc98",
+      "txHash": "0x75285b9592d0fe6add78cd12f1c5a60b0b2807af876ad7ed6da3fe283bb6c181",
+      "note": "for record 0x6c9cc7feeade5dd1fdd8d81941b1ba67e8bd9107e00e9e8c6ffdd1e526f4163f"
+    },
+    {
+      "at": "2026-10-11T09:40:38.463Z",
+      "role": "forger",
+      "action": "forged-record",
+      "entityKey": "0x82b1879f1e518f22e2eaabd84a9b774a6a497a46cc680b07e0e14f625070ece6",
+      "txHash": "0x726fb53eddf234e593db4998541678220bb4557c38c51ff8eaa4d5cad33bab98"
+    },
+    {
+      "at": "2026-10-11T09:40:42.245Z",
+      "role": "counterparty",
+      "action": "extend",
+      "entityKey": "0x6c9cc7feeade5dd1fdd8d81941b1ba67e8bd9107e00e9e8c6ffdd1e526f4163f",
+      "txHash": "0xcd86da5ee6055a05a49cba5995c74b4296de5708d9768be2a2ee6fa63136a9f0"
+    },
+    {
+      "at": "2026-10-11T09:40:44.357Z",
+      "role": "principal",
+      "action": "heartbeat",
+      "entityKey": "0xb208a235fde1e277b7e33b61a9585030683f6cf7135d27647be7c8cdf92599b7",
+      "txHash": "0x9b64d0a92f9a6bef98d136c284b839206d6e8e20dfdc3ab248cb0fe090a1eaf7"
+    },
+    {
+      "at": "2026-10-11T09:43:16.532Z",
+      "role": "principal",
+      "action": "revoke",
+      "entityKey": "0xb208a235fde1e277b7e33b61a9585030683f6cf7135d27647be7c8cdf92599b7",
+      "txHash": "0x1466b5c15ea00fd3aad462522baa6ca1eceaccc4e5b31c78c2401ff1afa305b9"
+    },
+    {
+      "at": "2026-10-11T09:43:21.136Z",
+      "role": "agent",
+      "action": "record:refused:no_live_mandate",
+      "entityKey": "0xdbb33386a61d0725f8fff083c603cabe5a91d9606a47f39e75214af757bda593",
+      "txHash": "0xb0920f7cc8271a3c9ffb9fe72384253142340b5c09442a8d4ffdf0e52273f7a6",
+      "note": "fuel 5 000.00 RUB"
+    }
+  ],
+  "mandate": {
+    "key": "0xb208a235fde1e277b7e33b61a9585030683f6cf7135d27647be7c8cdf92599b7",
+    "txHash": "0x7a5711e8fed3cfefd39eb5060d86794b405f1c180dbe59ddfe0cf57152b4e2bc",
+    "principal": "0x4B25c7E2e178D275Ff3285f2832Bb29D13Bd0591",
+    "agent": "0xF743C97D950ac24164Ef0B045AD90baC59BA6A8f",
+    "issuedAt": "2026-10-11T09:40:05.181Z"
+  }
+}

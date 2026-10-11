@@ -64,7 +64,7 @@ async function loadAgent(agent: Address) {
   const order: string[] = []
   for (const m of live) order.push(m.key.toLowerCase())
   for (const r of records) if (!order.includes(r.mandate.toLowerCase())) order.push(r.mandate.toLowerCase())
-  const keys = order.slice(0, 6)
+  const keys = order.slice(0, 4) // three queries per mandate: keep a page load cheap
 
   const views: MandateView[] = []
   for (const k of keys) {
@@ -120,11 +120,8 @@ export function AgentPage({ agent, dataKey, expectedPrincipal }: { agent: Addres
       reloadTimer.current = setTimeout(state.reload, 1200)
     })
   }, [agent, keys, state.reload])
-  // Forgeries come from wallets nobody can predict, so they are also re-queried every 30 s.
-  useEffect(() => {
-    const t = setInterval(state.reload, 30_000)
-    return () => clearInterval(t)
-  }, [state.reload])
+  // No timer: every Arkiv query costs the public RPC's anonymous budget (see README › Rate limits of the public RPC),
+  // and a page left open must not burn it. Forgeries come from wallets nobody can predict, so they show up on "refresh".
 
   const [details, setDetails] = useState<Record<string, Record<string, unknown> | "error">>({})
   useEffect(() => {

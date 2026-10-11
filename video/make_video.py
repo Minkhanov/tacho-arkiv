@@ -97,11 +97,21 @@ def record(name: str, url: str, seconds: float, ready: str | None = None, action
     shutil.rmtree(tmp, ignore_errors=True)
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        ctx = browser.new_context(viewport={"width": W, "height": H}, record_video_dir=str(tmp), record_video_size={"width": W, "height": H}, color_scheme="dark")
+        ctx = browser.new_context(viewport={"width": W, "height": H}, record_video_dir=str(tmp), record_video_size={"width": W, "height": H}, color_scheme="dark", timezone_id="UTC", locale="en-GB")
         if init is not None:
             ctx.add_init_script(f"window.STAGE = {json.dumps(init)};")
         t0 = time.monotonic()
         page = ctx.new_page()
+        cost = {"units": 0, "queries": 0}
+
+        def _count(resp) -> None:
+            if "rpc.tiramisu" in resp.url:
+                c = resp.headers.get("arkiv-cost")
+                if c and c.isdigit():
+                    cost["units"] += int(c)
+                    cost["queries"] += 1
+
+        page.on("response", _count)
         page.goto(url)
         if ready:
             page.wait_for_selector(ready, timeout=60_000)
@@ -119,7 +129,7 @@ def record(name: str, url: str, seconds: float, ready: str | None = None, action
     shutil.move(str(src), out)
     shutil.rmtree(tmp, ignore_errors=True)
     (CLIPS / f"{name}.json").write_text(json.dumps({"offset": round(offset, 3), "seconds": seconds}))
-    print(f"  recorded {name}: {seconds:.1f} s (+{offset:.1f} s lead-in trimmed)")
+    print(f"  recorded {name}: {seconds:.1f} s (+{offset:.1f} s lead-in trimmed); public RPC budget used by the page: {cost['units']} units in {cost['queries']} queries")
 
 
 def smooth_scroll(page, y: int, hold_ms: int) -> None:
@@ -181,17 +191,24 @@ def capture() -> None:
         smooth_scroll(page, int(recs.bounding_box()["y"]) + page.evaluate("window.scrollY") - 140, int(total * 0.3))
         smooth_scroll(page, 0, int(total * 0.14))
 
-    record("inspector", f"{APP}#/agent/{agent_addr}{k}", seg_seconds("inspector"), ready=".mandate .disc", actions=inspector_actions)
-    v = seg_seconds("verify")
-    if allowed:
-        record("verify_ok", f"{APP}#/record/{allowed[0]['entityKey']}{k}", v * 0.58, ready=".checklist")
-    if forged:
-        record("verify_forged", f"{APP}#/record/{forged[0]['entityKey']}", v * 0.42, ready=".checklist")
+    failure: Exception | None = None
+    try:
+        record("inspector", f"{APP}#/agent/{agent_addr}{k}", seg_seconds("inspector"), ready=".mandate .disc", actions=inspector_actions)
+        v = seg_seconds("verify")
+        if allowed:
+            record("verify_ok", f"{APP}#/record/{allowed[0]['entityKey']}{k}", v * 0.85, ready=".checklist")
+        if forged:
+            record("verify_forged", f"{APP}#/record/{forged[0]['entityKey']}", v * 0.4, ready=".checklist")
+    except Exception as exc:  # keep the demo run and its transcript even if a recording fails
+        failure = exc
+        print(f"  RECORDING FAILED: {exc!r}")
 
     proc.wait(timeout=pause + 240)
     th.join(timeout=5)
     (WORK / "transcript.json").write_text(json.dumps(transcript, indent=1))
     print(f"  transcript: {len(transcript)} lines, mandate {mandate}")
+    if failure:
+        raise failure
 
 
 # --------------------------------------------------------------------------------------------- stage scenes
@@ -229,8 +246,13 @@ def assemble() -> None:
             clips = [c for c in ("verify_ok", "verify_forged") if (CLIPS / f"{c}.webm").exists()]
         if not clips:
             sys.exit(f"missing clip for {sid}: run capture/stage first")
-        share = secs / len(clips)
-        for c in clips:
+        shares = [secs / len(clips)] * len(clips)
+        if len(clips) == 2 and "split" in seg:
+            # the first clip lasts until the end of sentence `split`, timed by length like the captions
+            sents = [x.strip() for x in re.split(r"(?<=[.?!])\s+", seg["text"]) if x.strip()]
+            first = secs * sum(len(x) for x in sents[: seg["split"]]) / sum(len(x) for x in sents)
+            shares = [first, secs - first]
+        for c, share in zip(clips, shares):
             meta = json.loads((CLIPS / f"{c}.json").read_text())
             out = WORK / f"part_{len(parts):02}_{c}.mp4"
             # trim the lead-in, hold the last frame if the clip is short, exact length, constant fps

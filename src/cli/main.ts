@@ -8,10 +8,9 @@
  * Run `npm run tacho -- help`.
  */
 import { ExpirationTime } from "@arkiv-network/sdk"
-import { tiramisu } from "@arkiv-network/sdk/chains"
-import { createWalletClient, formatEther, http, parseEther } from "viem"
+import { createWalletClient, formatEther, parseEther } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
-import { watchMandate } from "../core/clients.ts"
+import { meter, RpcBudgetError, rpcHttp, TIRAMISU_CHAIN, watchMandate } from "../core/clients.ts"
 import { DEFAULTS, REASON, TIRAMISU, VERDICT } from "../core/constants.ts"
 import { generateDataKey, unseal } from "../core/crypto.ts"
 import { parseMandate, parseRecord, recordAad, recordBatch, type Hex } from "../core/entities.ts"
@@ -45,7 +44,7 @@ async function cmdWallets() {
 async function cmdFund() {
   const amount = parseEther(String(flags.glm ?? "1"))
   const key = process.env.TACHO_PRINCIPAL_KEY as Hex
-  const wallet = createWalletClient({ chain: tiramisu, transport: http(rpc().http), account: privateKeyToAccount(key) })
+  const wallet = createWalletClient({ chain: TIRAMISU_CHAIN, transport: rpcHttp(rpc().http), account: privateKeyToAccount(key) })
   const pc = publicClient()
   for (const r of ROLES.filter((x) => x !== "principal")) {
     const to = addressOf(r)
@@ -344,9 +343,17 @@ async function main() {
 }
 
 main()
-  .then(() => process.exit(0))
+  .then(() => {
+    if (meter.units > 0) console.log(dim(`public RPC query budget used by this run: ${meter.units} units in ${meter.queries} queries (anonymous budget: 10 000 units per hour per IP, see README)`))
+    process.exit(0)
+  })
   .catch((err) => {
-    console.error(red(`error: ${err instanceof Error ? err.message : String(err)}`))
+    // viem wraps a failed fetch in several layers; the RPC budget error is the one worth reading.
+    let shown = err instanceof Error ? err.message : String(err)
+    for (let e: unknown = err, i = 0; e instanceof Error && i < 8; e = (e as { cause?: unknown }).cause, i++) {
+      if (e instanceof RpcBudgetError) shown = e.message
+    }
+    console.error(red(`error: ${shown}`))
     process.exit(1)
   })
 

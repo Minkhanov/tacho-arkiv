@@ -1,0 +1,181 @@
+{
+  "at": "2026-10-11T09:50:00.955Z",
+  "results": [
+    {
+      "id": "W1 plain GLM transfer",
+      "ok": true,
+      "status": "success",
+      "txHash": "0x6324581f9e17af6213fbe8bb29225185095e98ab4b72ad1f173f32ceabf70de8",
+      "gasUsed": "21000",
+      "feeGLM": "0.000021000000042",
+      "block": "431193"
+    },
+    {
+      "id": "W2 createEntity expiresAt",
+      "ok": true,
+      "returned": "431494",
+      "stored": "431494",
+      "diffBlocks": "0",
+      "createdAt": "431194",
+      "createMs": 4937,
+      "visibleAfterMs": 105,
+      "txHash": "0x34922da1bbe7e0175b413b735fb42972c6593fbf9f8cf85595fbbc48631f227a",
+      "gasUsed": "90432",
+      "feeGLM": "0.000090432000180864",
+      "block": "431194"
+    },
+    {
+      "id": "W3 query sees the new entity immediately",
+      "ok": true,
+      "found": 2
+    },
+    {
+      "id": "W4 create+seal batch",
+      "ok": true,
+      "predicted": "0xf7cc68e35c65286d800f6f6398d1ffd9ee073e6214b8021b26d7cdc5ff13d99e",
+      "minted": "0xf7cc68e35c65286d800f6f6398d1ffd9ee073e6214b8021b26d7cdc5ff13d99e",
+      "owner": "0x000000000000000000000000000000000000dEaD",
+      "creator": "0xF743C97D950ac24164Ef0B045AD90baC59BA6A8f",
+      "flags": {
+        "readonly": true,
+        "permissionlessExtension": true,
+        "raw": 3
+      },
+      "txHash": "0xb2a4b9005183ac89252cf8905c0f63f4c985d3c55f1bbccc721d504c88396bdd",
+      "gasUsed": "110432",
+      "feeGLM": "0.000110432000220864",
+      "block": "431197"
+    },
+    {
+      "id": "W5 creator deletes sealed entity (expected to fail)",
+      "ok": true,
+      "error": "EntityMutationError: Transaction failed: entity 0xf7cc68e3…13d99e is owned by 0x000000000000000000000000000000000000dEaD, not 0xF743C97D950ac24164Ef0B045AD90baC59BA6A8f",
+      "errorName": "EntityMutationError",
+      "ownProps": [
+        "message",
+        "cause",
+        "txHash",
+        "name"
+      ],
+      "reasonOnError": null,
+      "revertNameInCauseChain": "NotOwner",
+      "txHash": null,
+      "nonceDelta": 0,
+      "balanceDeltaWei": "0"
+    },
+    {
+      "id": "W6 permissionless extension by a non-owner",
+      "ok": true,
+      "returned": "436600",
+      "stored": "436600",
+      "txHash": "0x9a793f690b33abe385c6e4f39d540605841c40845c8101478314ac310f9d9245",
+      "gasUsed": "25210",
+      "feeGLM": "0.00002521000005042",
+      "block": "431200"
+    },
+    {
+      "id": "W7 shorter extension (expected to fail)",
+      "ok": true,
+      "error": "EntityMutationError: Transaction failed: entity 0xf7cc68e3…13d99e already expires at block 436600, so extending it to 431351 would shorten its life",
+      "errorName": "EntityMutationError",
+      "ownProps": [
+        "message",
+        "cause",
+        "txHash",
+        "name"
+      ],
+      "reasonOnError": null,
+      "revertNameInCauseChain": "ExpiryNotExtended",
+      "txHash": null,
+      "nonceDelta": 0,
+      "balanceDeltaWei": "0"
+    },
+    {
+      "id": "W8a non-owner extension without the flag (expected to fail)",
+      "ok": true,
+      "error": "EntityMutationError: Transaction failed: entity 0xb2c58430…9b145d is owned by 0x4B25c7E2e178D275Ff3285f2832Bb29D13Bd0591, not 0xF743C97D950ac24164Ef0B045AD90baC59BA6A8f",
+      "errorName": "EntityMutationError",
+      "ownProps": [
+        "message",
+        "cause",
+        "txHash",
+        "name"
+      ],
+      "reasonOnError": null,
+      "revertNameInCauseChain": "NotOwner",
+      "txHash": null,
+      "nonceDelta": 0,
+      "balanceDeltaWei": "0"
+    },
+    {
+      "id": "W8b patch a readonly entity (expected to fail)",
+      "ok": true,
+      "error": "EntityMutationError: Transaction failed: entity 0xb2c58430…9b145d was created readonly, so its contents can never change. Its expiry can still be extended, and it can be transferred or deleted",
+      "errorName": "EntityMutationError",
+      "ownProps": [
+        "message",
+        "cause",
+        "txHash",
+        "name"
+      ],
+      "reasonOnError": null,
+      "revertNameInCauseChain": "ReadOnlyEntity",
+      "txHash": null,
+      "nonceDelta": 0,
+      "balanceDeltaWei": "0"
+    },
+    {
+      "id": "W12 transfer to the zero address (expected to fail)",
+      "ok": true,
+      "error": "EntityMutationError: Transaction failed: entity 0xb2c58430…9b145d cannot be transferred to the zero address",
+      "errorName": "EntityMutationError",
+      "ownProps": [
+        "message",
+        "cause",
+        "txHash",
+        "name"
+      ],
+      "reasonOnError": null,
+      "revertNameInCauseChain": "TransferToZeroAddress",
+      "txHash": null,
+      "nonceDelta": 0,
+      "balanceDeltaWei": "0"
+    },
+    {
+      "id": "W9 WebSocket EntityDeleted",
+      "ok": true,
+      "deleteResolvedMs": 4959,
+      "eventAfterSendMs": 1552,
+      "eventVsResolveMs": -3407,
+      "txHash": "0xb0130ca0f936b67344e83a6481d60ab36afcb895fa5a17938edcd15e1e21afc4",
+      "gasUsed": "24510",
+      "feeGLM": "0.00002451000004902",
+      "block": "431207"
+    },
+    {
+      "id": "W10 fromSeconds(901) (expected to fail client-side)",
+      "ok": true,
+      "error": "InvalidExpiryError: Invalid expiry: a lifetime must be a multiple of the 2s block time, got 901, which is 450.5 blocks. Try 900 or 902, or ExpirationTime.fromBlocks(n)."
+    },
+    {
+      "id": "W11 createEntity latency: stock chain vs blockTime 2000",
+      "ok": true,
+      "stockMs": [
+        4974,
+        4769,
+        4796,
+        4844
+      ],
+      "blockTime2000Ms": [
+        1966,
+        2981,
+        4068,
+        2950
+      ],
+      "stockMedian": 4844,
+      "blockTime2000Median": 2981,
+      "stockPollingMs": 4000,
+      "blockTime2000PollingMs": 1000
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+1
+00:00:00,000 --> 00:00:02,514
+An AI agent with your company card.
+
+2
+00:00:02,564 --> 00:00:04,125
+Who keeps its logbook?
+
+3
+00:00:04,175 --> 00:00:08,374
+This is Tacho: a tachograph for AI agents, built on Arkiv.
+
+4
+00:00:08,774 --> 00:00:13,163
+Trucks carry tachographs because hauliers once kept their own logbooks.
+
+5
+00:00:13,213 --> 00:00:15,164
+AI agents are still in that era.
+
+6
+00:00:15,214 --> 00:00:20,290
+The limits an agent had, and the log of what it did, sit in the vendor's database.
+
+7
+00:00:20,340 --> 00:00:23,166
+The vendor can edit it, lose it, or shut down.
+
+8
+00:00:23,216 --> 00:00:26,292
+And the fuel station cannot check anything at all.
+
+9
+00:00:26,692 --> 00:00:30,083
+Here is the whole story, live on the Tiramisu testnet.
+
+10
+00:00:30,133 --> 00:00:37,283
+The fleet owner issues a mandate: fuel and tolls only, fifteen thousand roubles per action, forty thousand a day.
+
+11
+00:00:37,333 --> 00:00:42,445
+It is read-only, and it lives fifteen minutes unless the owner keeps renewing it.
+
+12
+00:00:42,495 --> 00:00:52,130
+Every attempt the agent makes, allowed or refused, becomes a record from the agent's wallet, handed in the same atomic batch to an address nobody holds.
+
+13
+00:00:52,180 --> 00:00:55,635
+So nobody can delete it, not even the agent's operator.
+
+14
+00:00:55,685 --> 00:01:04,173
+Three attempts are refused: one over the per-action cap, one for a kind the mandate never granted, one that would break the daily cap.
+
+15
+00:01:04,223 --> 00:01:09,144
+The fuel station verifies a record before it pumps, and seals its own receipt.
+
+16
+00:01:09,194 --> 00:01:13,859
+A forger copies every attribute into a fake ninety-thousand-rouble record.
+
+17
+00:01:13,909 --> 00:01:15,324
+Refused: wrong creator.
+
+18
+00:01:15,374 --> 00:01:16,790
+Then the owner revokes.
+
+19
+00:01:16,840 --> 00:01:23,162
+The agent hears the deletion over a WebSocket, halts, and its next attempt is refused on the record.
+
+20
+00:01:23,562 --> 00:01:26,098
+Anyone can audit this from Arkiv alone.
+
+21
+00:01:26,148 --> 00:01:30,010
+The inspector is a static page with no server and no login.
+
+22
+00:01:30,060 --> 00:01:32,066
+The ring counts down the lease.
+
+23
+00:01:32,116 --> 00:01:38,962
+The disc is the day, like a paper tachograph: green allowed, amber refused, red forged, blue heartbeats.
+
+24
+00:01:39,012 --> 00:01:44,797
+Every record is sealed, kept forty-five days, and anyone can extend it during a dispute.
+
+25
+00:01:44,847 --> 00:01:50,101
+Details are encrypted; with the key in the link, only the parties can read them.
+
+26
+00:01:50,151 --> 00:01:54,544
+Each panel shows its exact query, and a curl that works without us.
+
+27
+00:01:54,944 --> 00:01:58,247
+The fuel station's check trusts nothing the agent says.
+
+28
+00:01:58,297 --> 00:02:06,232
+It reads the creator field, the mandate as it was at the record's block, and recomputes the daily cap from the agent's own records.
+
+29
+00:02:06,282 --> 00:02:07,695
+A genuine record passes.
+
+30
+00:02:07,745 --> 00:02:11,718
+The forged one fails on authorship, whatever attributes it copies.
+
+31
+00:02:12,118 --> 00:02:14,528
+Take Arkiv away and this falls apart.
+
+32
+00:02:14,578 --> 00:02:17,918
+Expiry is enforced by the database, not a cron job.
+
+33
+00:02:17,968 --> 00:02:20,245
+The creator is set by the protocol.
+
+34
+00:02:20,295 --> 00:02:22,971
+Ownership makes the evidence undeletable.
+
+35
+00:02:23,021 --> 00:02:26,228
+And a stranger can query all of it, at any block.
+
+36
+00:02:26,628 --> 00:02:33,094
+Security, censorship resistance, privacy, and an open data contract anyone can build on.
+
+37
+00:02:33,144 --> 00:02:37,018
+Tacho: leased authority, sealed records, open audits.

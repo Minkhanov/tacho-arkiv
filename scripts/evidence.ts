@@ -3,10 +3,10 @@
  * explorer links and each transaction's block and fee read back from Tiramisu.
  *   npx tsx scripts/evidence.ts
  */
-import { readFileSync, writeFileSync } from "node:fs"
+import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import { createPublicClient } from "@arkiv-network/sdk"
-import { tiramisu } from "@arkiv-network/sdk/chains"
-import { formatEther, http, type Hash } from "viem"
+import { formatEther, type Hash } from "viem"
+import { rpcHttp, TIRAMISU_CHAIN } from "../src/core/clients.ts"
 import { TIRAMISU } from "../src/core/constants.ts"
 
 interface State {
@@ -14,7 +14,19 @@ interface State {
   events: Array<{ at: string; role: string; action: string; entityKey?: string; txHash?: string; note?: string }>
 }
 const state = JSON.parse(readFileSync("demo/state.json", "utf8")) as State
-const pc = createPublicClient({ chain: tiramisu, transport: http() })
+const pc = createPublicClient({ chain: TIRAMISU_CHAIN, transport: rpcHttp() })
+
+/** The first Arkiv entity any Tacho wallet wrote: the principal's `createEntity` in probe W2, 11 Oct 2026. Verified below on chain. */
+const FIRST_ENTITY_TX = "0x22da1d174a85d2b6e73add8bfb0fd21844a289f40a11455a68b670ff1a77af60" as Hash
+const START_UTC = "2026-10-09T11:47:00Z" // first commit of the repository, 14:47 MSK
+
+async function rpcCall<T>(method: string, params: unknown[]): Promise<T> {
+  const res = await fetch(TIRAMISU.http, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) })
+  const j = (await res.json()) as { result?: T; error?: { message: string } }
+  if (j.error) throw new Error(`${method}: ${j.error.message}`)
+  return j.result as T
+}
+const msk = (d: Date) => d.toLocaleString("sv-SE", { timeZone: "Europe/Moscow" }) + " MSK"
 
 const ROLE_TEXT: Record<string, string> = {
   principal: "Principal (fleet owner): issues, renews and revokes mandates",
@@ -27,22 +39,68 @@ let md = `# On-chain evidence (Tiramisu, chain ID ${TIRAMISU.chainId})\n\nGenera
 for (const [role, addr] of Object.entries(state.wallets)) {
   md += `| ${ROLE_TEXT[role] ?? role} | [\`${addr}\`](${TIRAMISU.dataExplorer}/owner/${addr}) |\n`
 }
-md += `\nRecords and acks are owned by the seal address \`0x000000000000000000000000000000000000dEaD\` from the block they land; find them by creator (\`$creator\`), as the app does.\n\n## Transactions\n\n| Time (UTC) | Role | Action | Entity | Tx | Block | Fee (GLM) |\n|---|---|---|---|---|---|---|\n`
+const totals: string[] = []
+for (const [role, addr] of Object.entries(state.wallets)) {
+  const nonce = await pc.getTransactionCount({ address: addr as `0x${string}` })
+  const live = await rpcCall<number>("arkiv_getEntityCount", [{ query: `$creator = addr(${addr})` }])
+  const bal = await pc.getBalance({ address: addr as `0x${string}` })
+  totals.push(`| ${role} | [\`${addr}\`](${TIRAMISU.explorer}/address/${addr}) | ${nonce} | ${live} | ${formatEther(bal)} |`)
+}
+md += `\n## Totals read from Tiramisu when this file was generated\n\n| Role | Wallet | Transactions sent (nonce) | Entities it created that are still live | Balance (GLM) |\n|---|---|---|---|---|\n${totals.join("\n")}\n\nThe live count is \`arkiv_getEntityCount\` with \`$creator = addr(<wallet>)\`. It leaves out entities that were deleted (revoked mandates) or whose short test lifetime has ended. Anyone can run the same call:\n\n\`\`\`bash\ncurl -s ${TIRAMISU.http} -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"arkiv_getEntityCount","params":[{"query":"$creator = addr(${state.wallets.agent})"}]}'\n\`\`\`\n`
+
+try {
+  const r = await pc.getTransactionReceipt({ hash: FIRST_ENTITY_TX })
+  const b = await pc.getBlock({ blockNumber: r.blockNumber })
+  const at = new Date(Number(b.timestamp) * 1000)
+  const hours = ((at.getTime() - Date.parse(START_UTC)) / 3_600_000).toFixed(1)
+  md += `\n## First entity written\n\n[\`${FIRST_ENTITY_TX}\`](${TIRAMISU.explorer}/tx/${FIRST_ENTITY_TX}): the principal's \`createEntity\` (write probe W2), block ${r.blockNumber}, ${at.toISOString().slice(0, 19).replace("T", " ")} UTC (${msk(at)}), status \`${r.status}\`. That is ${hours} hours after the repository's first commit (${START_UTC.slice(0, 16).replace("T", " ")} UTC). The delay was the testnet faucet, which needs a person to solve a captcha: the wallets held no GLM before 11 October.\n`
+} catch {
+  md += `\n## First entity written\n\nCould not read ${FIRST_ENTITY_TX} from Tiramisu when this file was generated.\n`
+}
+
+md += `\nRecords and acks are owned by the seal address \`0x000000000000000000000000000000000000dEaD\` from the block they land; find them by creator (\`$creator\`), as the app does.\n\n## Demo runs\n\nEach run is \`npm run demo\` on Tiramisu: issue a mandate, six scripted attempts (three allowed, three refused), the station honours one record, a forger writes a fake, the station extends the genuine record, the principal sends a heartbeat, then revokes, and the agent's next attempt is refused on the record. Entity keys link to the Arkiv Data Explorer; transaction hashes link to the block explorer.\n`
+const runs: State["events"][] = []
 for (const e of state.events) {
-  let block = ""
-  let fee = ""
-  if (e.txHash) {
-    try {
-      const r = await pc.getTransactionReceipt({ hash: e.txHash as Hash })
-      block = r.blockNumber.toString()
-      fee = formatEther(r.gasUsed * r.effectiveGasPrice)
-    } catch {
-      block = "?"
+  if (e.action === "issue-mandate" || runs.length === 0) runs.push([])
+  runs[runs.length - 1]!.push(e)
+}
+let runNo = 0
+for (const run of runs) {
+  runNo++
+  const issued = run.find((e) => e.action === "issue-mandate")
+  const revoked = run.some((e) => e.action === "revoke")
+  const records = run.filter((e) => e.action.startsWith("record:")).length
+  md += `\n### Run ${runNo}: mandate ${issued?.entityKey ? `[\`${issued.entityKey.slice(0, 10)}…\`](${TIRAMISU.dataExplorer}/entity/${issued.entityKey})` : "?"}, ${run.length} transactions, ${records} records, ${revoked ? (records >= 7 ? "revoked by the principal, next attempt refused on the record" : "revoked by the principal; interrupted: the demo process was stopped right after the revoke, so the final refused attempt is missing") : "not revoked: the lease runs out by itself (no heartbeat, no authority)"}\n\n| Time (UTC) | Role | Action | Entity | Tx | Block | Fee (GLM) |\n|---|---|---|---|---|---|---|\n`
+  for (const e of run) {
+    let block = ""
+    let fee = ""
+    if (e.txHash) {
+      try {
+        const r = await pc.getTransactionReceipt({ hash: e.txHash as Hash })
+        block = r.blockNumber.toString()
+        fee = formatEther(r.gasUsed * r.effectiveGasPrice)
+      } catch {
+        block = "?"
+      }
     }
+    const ent = e.entityKey ? `[\`${e.entityKey.slice(0, 10)}…\`](${TIRAMISU.dataExplorer}/entity/${e.entityKey})` : ""
+    const tx = e.txHash ? `[\`${e.txHash.slice(0, 10)}…\`](${TIRAMISU.explorer}/tx/${e.txHash})` : ""
+    md += `| ${e.at.slice(0, 19).replace("T", " ")} | ${e.role} | ${e.action}${e.note ? ` (${e.note})` : ""} | ${ent} | ${tx} | ${block} | ${fee} |\n`
   }
-  const ent = e.entityKey ? `[\`${e.entityKey.slice(0, 10)}…\`](${TIRAMISU.dataExplorer}/entity/${e.entityKey})` : ""
-  const tx = e.txHash ? `[\`${e.txHash.slice(0, 10)}…\`](${TIRAMISU.explorer}/tx/${e.txHash})` : ""
-  md += `| ${e.at.slice(0, 19).replace("T", " ")} | ${e.role} | ${e.action}${e.note ? ` (${e.note})` : ""} | ${ent} | ${tx} | ${block} | ${fee} |\n`
+}
+if (existsSync("scripts/out/probe-write.json")) {
+  const probe = JSON.parse(readFileSync("scripts/out/probe-write.json", "utf8")) as { at: string; results: Array<{ id: string; txHash?: string; block?: string; gasUsed?: string; feeGLM?: string }> }
+  const rows = probe.results.filter((r) => r.txHash)
+  md += `
+## Write probes (\`scripts/probe-write.ts\`, run ${probe.at.slice(0, 19).replace("T", " ")} UTC)
+
+The probes behind [friction.md](../arkiv/friction.md) W1–W12. They write to a separate namespace (\`tacho-probe/v1\`) so they do not mix with the demo. Only the transactions that were sent are listed; a rejected write is stopped before it reaches the chain and has no transaction.
+
+| Probe | Tx | Block | Gas used | Fee (GLM) |
+|---|---|---|---|---|
+`
+  for (const r of rows) md += `| ${r.id} | [\`${r.txHash!.slice(0, 10)}…\`](${TIRAMISU.explorer}/tx/${r.txHash}) | ${r.block ?? ""} | ${r.gasUsed ?? ""} | ${r.feeGLM ?? ""} |
+`
 }
 writeFileSync("demo/EVIDENCE.md", md)
 console.log(`demo/EVIDENCE.md: ${state.events.length} events`)

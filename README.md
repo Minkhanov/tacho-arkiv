@@ -4,7 +4,7 @@
 
 **An AI agent that spends a company's money gets its authority as a lease that a human must keep renewing, writes a sealed record of every attempt that nobody can delete, and can be audited by anyone from Arkiv alone — no Tacho server, no vendor database.**
 
-[Live app](https://minkhanov.github.io/tacho-arkiv/) · [Demo video (≤ 3 min)](media/tacho-demo.mp4) · [Data contract: `/arkiv/schema.md`](arkiv/schema.md) · [Friction report: `/arkiv/friction.md`](arkiv/friction.md) · [On-chain evidence](demo/EVIDENCE.md) · MIT
+[Live app](https://minkhanov.github.io/tacho-arkiv/) · [Demo video, 2:37](web/public/tacho-demo.mp4) · [Data contract: `/arkiv/schema.md`](arkiv/schema.md) · [Friction report: `/arkiv/friction.md`](arkiv/friction.md) · [On-chain evidence](demo/EVIDENCE.md) · MIT
 
 Built for **Arkiv: Global Tour Stop** (9–18 October 2026), entered in all four CROPS tracks.
 
@@ -113,13 +113,18 @@ git clone https://github.com/Minkhanov/tacho-arkiv && cd tacho-arkiv
 npm ci
 npm run tacho -- keys > .env       # four fresh testnet keys + a data key; never reuse them on mainnet
 npm run tacho -- wallets           # fund the principal at https://hub.arkiv.network/faucet
-npm run tacho -- fund --glm 1      # optional: share GLM with the other roles
-npm run demo                       # issue → 6 attempts (2 refused) → honour → forge → extend → heartbeat → revoke → halt
+npm run tacho -- fund --glm 0.1    # optional: share GLM with the other roles (a full demo costs about 0.002 GLM)
+npm run demo                       # issue → 6 attempts (3 refused) → honour → forge → extend → heartbeat → revoke → halt
 npm run tacho -- inspect           # what anyone can see, with the queries
 npm run dev                        # the inspector on http://localhost:5173
 ```
 
 Step by step instead of `demo`: `issue`, `agent`, `heartbeat --every 60`, `verify <record>`, `honour <record>`, `forge`, `extend <record> --as counterparty`, `revoke`, `decrypt <record>`. `npm run tacho -- help` lists them.
+
+**Rate limits of the public RPC.** Reading is free of charge but metered. An anonymous IP gets 10 000 cost units per window (about an hour); every `arkiv_query` costs 100, so about 100 queries. `arkiv_getEntityCount` and the `eth_*` calls are not charged. In numbers: `npm run demo` uses 2 800 units (28 queries), one inspector page 1 100, one record check 400. When the budget is used up, the RPC answers HTTP 429 `ANON_COST_LIMITED` with a `Retry-After` of up to an hour. Tacho then stops at once and says when the budget renews, where plain viem would sleep for the whole `Retry-After` and look frozen ([friction F9](arkiv/friction.md)). The inspector never refreshes on a timer, so a page left open costs nothing. If you hit the limit, a free key from [hub.arkiv.network/api-keys](https://hub.arkiv.network/api-keys) lifts it:
+
+- CLI: set `TACHO_RPC_HTTP=https://rpc.tiramisu.db-chain.testnet.arkiv.network/<key>` and `TACHO_RPC_WS=wss://rpc.tiramisu.db-chain.testnet.arkiv.network/<key>` in `.env`;
+- inspector: add `?apikey=<key>` to the link, for example `…/#/agent/0xF743C97D950ac24164Ef0B045AD90baC59BA6A8f?apikey=<key>`. The key stays in the URL fragment, which the browser never sends to a server, and the inspector only ever talks to the official RPC host.
 
 ## Reproduce the claims
 
@@ -145,12 +150,12 @@ Transaction hashes and blocks for the demo run: [demo/EVIDENCE.md](demo/EVIDENCE
 ## Tests
 
 ```bash
-npm test                  # unit + flow tests on an in-memory Arkiv model (no network)
-npm run test:integration  # the same flows on the live Tiramisu testnet (needs funded keys in .env)
+npm test                  # 67 unit and flow tests on an in-memory Arkiv model (no network)
+npm run test:integration  # four end-to-end tests of the same flows on the live Tiramisu testnet (funded keys in .env; about 3 000 units of the public RPC budget)
 npm run typecheck
 ```
 
-The flow tests cover the caps, lease expiry, heartbeat, revocation, a foreign principal, sealing (the creator cannot delete), permissionless extension, double acknowledgement, a forged record, a record written after revocation, a rogue runtime that marks over-cap spending as allowed, clock skew, and batch atomicity. [`scripts/probe-read.ts`](scripts/probe-read.ts) and [`scripts/probe-write.ts`](scripts/probe-write.ts) reproduce every item in the friction report.
+The flow tests cover the caps, lease expiry, heartbeat, revocation, a foreign principal, sealing (the creator cannot delete), permissionless extension, double acknowledgement, a forged record, a record written after revocation, a rogue runtime that marks over-cap spending as allowed, clock skew, and batch atomicity. [`scripts/probe-read.ts`](scripts/probe-read.ts), [`scripts/probe-write.ts`](scripts/probe-write.ts) and [`scripts/probe-budget.ts`](scripts/probe-budget.ts) reproduce every item in the friction report.
 
 ## Layout
 

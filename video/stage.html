@@ -30,10 +30,10 @@
   .card b { display: block; color: var(--text); font-size: 36px; margin-bottom: 14px; }
   .card.bad { border-color: rgba(255,92,108,.5); }
   /* terminal */
-  .term { background: #070b0f; border: 1px solid var(--line); border-radius: 18px; height: 820px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .term { background: #070b0f; border: 1px solid var(--line); border-radius: 18px; height: 740px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.45); display: flex; flex-direction: column; }
   .term-bar { height: 52px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; padding: 0 20px; color: var(--muted); font: 22px var(--mono); }
   .term-bar i { width: 14px; height: 14px; border-radius: 50%; background: #2a3946; display: inline-block; }
-  .term-body { padding: 22px 28px; font: 23px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .term-body { padding: 22px 28px; font: 23px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
   .term-body .l { opacity: 0; } .term-body .l.show { opacity: 1; }
   .c-ok { color: var(--ok); } .c-bad { color: var(--bad); } .c-warn { color: var(--warn); } .c-dim { color: #6b8396; } .c-info { color: var(--info); } .c-mag { color: #d58cff; } .c-b { font-weight: 700; }
   /* why */
@@ -120,7 +120,12 @@
   }
   if (S.scene === "terminal") {
     const tb = document.getElementById("tb")
-    const raw = (S.transcript || []).filter((l) => !/^\s*>\s|^npm|^\s*$/.test(l.text) || l.text === "")
+    let raw = (S.transcript || []).filter((l) => !/^\s*>\s|^npm|^\s*$/.test(l.text) || l.text === "")
+    // The story ends with the refused attempt after the revocation; the "inspect it yourself" footer is for the README.
+    const cut = raw.findIndex((l) => /^Inspect it yourself/.test(l.text))
+    if (cut > 0) raw = raw.slice(0, cut)
+    raw = raw.filter((l) => !/pausing \d+ s before the revocation/.test(l.text))
+    while (raw.length && raw[raw.length - 1].text.trim() === "") raw.pop()
     // Keep the real order and rhythm, but cap any pause (e.g. the recording pause) at 2.5 s.
     let acc = 0
     const lines = raw.map((l, i) => {
@@ -143,7 +148,6 @@
       const d = document.createElement("div")
       d.className = "l"
       d.innerHTML = color(l.text) || "&nbsp;"
-      tb.appendChild(d)
       return d
     })
     // Real relative timing, compressed to the narration; never faster than 120 ms per line.
@@ -153,7 +157,8 @@
       last = at
       setTimeout(() => {
         nodes[i].classList.add("show")
-        while (tb.scrollHeight > tb.clientHeight && tb.firstChild && tb.firstChild.classList.contains("show")) tb.removeChild(tb.firstChild)
+        tb.appendChild(nodes[i])
+        while (tb.scrollHeight > tb.clientHeight && tb.children.length > 1) tb.removeChild(tb.firstChild)
       }, at)
     })
   }
