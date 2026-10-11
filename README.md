@@ -43,6 +43,10 @@ The people harmed are specific: the **fleet owner** who disputes a 90 000 RUB fu
 
 The [inspector](https://minkhanov.github.io/tacho-arkiv/) is a static page that reads Tiramisu directly. For any agent address it shows the live mandates with a lease countdown, a 24-hour tachograph disc of the day's attempts, every record with its seal, and, in red, records that claim the agent's mandate but were written by another wallet. Each panel prints its exact query and a `curl` that reproduces it.
 
+![The inspector: a live mandate with its lease ring, spend-today disc and the revoked mandates before it](docs/inspector.png)
+
+The station's view of a forged record, rejected on `$creator` ([docs/verify-forged.png](docs/verify-forged.png)).
+
 ## Why Arkiv, and what breaks without it
 
 | Property Tacho depends on | On Arkiv | On Postgres / your own API | On IPFS | On a subgraph |
@@ -151,7 +155,7 @@ Transaction hashes and blocks for the demo run: [demo/EVIDENCE.md](demo/EVIDENCE
 
 ```bash
 npm test                  # 67 unit and flow tests on an in-memory Arkiv model (no network)
-npm run test:integration  # four end-to-end tests of the same flows on the live Tiramisu testnet (funded keys in .env; about 3 000 units of the public RPC budget)
+npm run test:integration  # four end-to-end tests of the same flows on the live Tiramisu testnet (funded keys in .env; about 2 700 units of the public RPC budget)
 npm run typecheck
 ```
 
